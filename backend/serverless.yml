@@ -3,7 +3,7 @@ service:
 
 plugins:
     - serverless-bundle
-    - serverless-pseudo-parameters
+    - serverless-pseudo-parameters # This will allow us to use AWS values(like region, account ID) with some variables
 
 provider:
     name: aws
@@ -13,6 +13,11 @@ provider:
     region: ${opt:region, 'us-east-1'}
     environment: # global environment variables - accessible to all lambda functions
         AUCTION_TABLE: AuctionsTable-${self:provider.stage}
+    iamRoleStatements: # TODO: Currently IAM Roles defined for All lambdas, Need to change it for individual functions
+        - Effect: Allow
+          Action:
+              - dynamodb:PutItem
+          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
 
 functions:
     createAuction:
@@ -22,6 +27,7 @@ functions:
                   method: POST
                   path: /auction
 
+# TODO: Move the Resources,Iam Roles to separate Files to make this serverless.yml file more readable
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax
     Resources:
