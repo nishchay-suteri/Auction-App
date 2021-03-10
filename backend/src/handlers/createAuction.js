@@ -14,6 +14,9 @@ async function createAuction(event, context) {
         title: body.title,
         status: "OPEN",
         createdAt: timestamp,
+        highestBid: {
+            amount: 0,
+        },
     };
 
     await docClient
