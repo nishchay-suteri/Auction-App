@@ -18,6 +18,7 @@ provider:
           Action:
               - dynamodb:PutItem
               - dynamodb:Scan
+              - dynamodb:GetItem
           Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
 
 functions:
@@ -25,7 +26,7 @@ functions:
         handler: src/handlers/createAuction.handler
         events:
             - http:
-                  method: POST
+                  method: POST # post will also work
                   path: /auction
     getAuctions:
         handler: src/handlers/getAuctions.handler
@@ -33,6 +34,12 @@ functions:
             - http:
                   method: get
                   path: /auctions
+    getAuction:
+        handler: src/handlers/getAuction.handler
+        events:
+            - http:
+                  method: get # GET will also work
+                  path: /auction/{auctionId}
 
 # TODO: Move the Resources,Iam Roles to separate Files to make this serverless.yml file more readable
 resources:
