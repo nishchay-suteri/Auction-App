@@ -12,7 +12,7 @@ provider:
     stage: ${opt:stage, 'dev'}
     region: ${opt:region, 'us-east-1'}
     environment: # global environment variables - accessible to all lambda functions
-        AUCTION_TABLE: AuctionsTable-${self:provider.stage}
+        AUCTION_TABLE: AuctionTable-${self:provider.stage}
     iamRoleStatements: # TODO: Currently IAM Roles defined for All lambdas, Need to change it for individual functions
         - Effect: Allow
           Action:
@@ -31,7 +31,7 @@ functions:
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax
     Resources:
-        AuctionsTable:
+        AuctionTable:
             Type: AWS::DynamoDB::Table
             Properties:
                 TableName: ${self:provider.environment.AUCTION_TABLE}
