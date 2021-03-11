@@ -5,6 +5,7 @@ plugins:
     - serverless-webpack
     - serverless-reqvalidator-plugin
     - serverless-aws-documentation
+    - serverless-iam-roles-per-function
 
 custom:
     documentation:
@@ -29,14 +30,6 @@ provider:
     region: ${opt:region, 'us-east-1'}
     environment: # global environment variables - accessible to all lambda functions
         AUCTION_TABLE: AuctionTable-${self:provider.stage}
-    iamRoleStatements: # TODO: Currently IAM Roles defined for All lambdas, Need to change it for individual functions
-        - Effect: Allow
-          Action:
-              - dynamodb:PutItem
-              - dynamodb:Scan
-              - dynamodb:GetItem
-              - dynamodb:UpdateItem
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
 
 functions:
     createAuction:
@@ -51,6 +44,11 @@ functions:
                       description: Create an Auction Item
                       requestModels:
                           "application/json": CreateAuctionRequest
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - dynamodb:PutItem
+              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
 
     getAuctions:
         handler: src/lambda/http/getAuctions.handler
@@ -58,12 +56,23 @@ functions:
             - http:
                   method: get
                   path: /auctions
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - dynamodb:Scan
+              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
+
     getAuction:
         handler: src/lambda/http/getAuction.handler
         events:
             - http:
                   method: get # GET will also work
                   path: /auction/{auctionId}
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - dynamodb:GetItem
+              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
     placeBid:
         handler: src/lambda/http/placeBid.handler
         events:
@@ -76,6 +85,12 @@ functions:
                       description: Update a Bid in Auction Item
                       requestModels:
                           "application/json": UpdateBidRequest
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
 
 # TODO: Move the Resources,Iam Roles to separate Files to make this serverless.yml file more readable
 resources:
