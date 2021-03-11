@@ -4,7 +4,7 @@ import * as uuid from "uuid";
 const docClient = new AWS.DynamoDB.DocumentClient();
 const auctionTable = process.env.AUCTION_TABLE;
 
-async function createAuction(event, context) {
+async function createAuction(event) {
     const body = JSON.parse(event.body);
     const timestamp = new Date().toISOString();
     const auctionId = uuid.v4();

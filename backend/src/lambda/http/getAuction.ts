@@ -3,7 +3,7 @@ import * as AWS from "aws-sdk";
 const docClient = new AWS.DynamoDB.DocumentClient();
 const auctionTable = process.env.AUCTION_TABLE;
 
-async function getAuction(event, context) {
+async function getAuction(event) {
     let auction;
     const auctionId = event.pathParameters.auctionId;
 

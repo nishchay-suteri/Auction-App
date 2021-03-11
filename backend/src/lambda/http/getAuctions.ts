@@ -3,7 +3,8 @@ import * as AWS from "aws-sdk";
 const docClient = new AWS.DynamoDB.DocumentClient();
 const auctionTable = process.env.AUCTION_TABLE;
 
-async function getAuctions(event, context) {
+async function getAuctions(event) {
+    console.log(`Processing event: ${event} `);
     let auctions;
     const result = await docClient.scan({ TableName: auctionTable }).promise();
 

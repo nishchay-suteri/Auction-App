@@ -2,8 +2,7 @@ service:
     name: auction-service
 
 plugins:
-    - serverless-bundle
-    - serverless-pseudo-parameters # This will allow us to use AWS values(like region, account ID) with some variables
+    - serverless-webpack
 
 provider:
     name: aws
