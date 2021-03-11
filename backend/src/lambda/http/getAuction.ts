@@ -1,9 +1,16 @@
 import * as AWS from "aws-sdk";
+import {
+    APIGatewayProxyEvent,
+    APIGatewayProxyResult,
+    APIGatewayProxyHandler,
+} from "aws-lambda";
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 const auctionTable = process.env.AUCTION_TABLE;
 
-async function getAuction(event) {
+async function getAuction(
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
     let auction;
     const auctionId = event.pathParameters.auctionId;
 
@@ -24,4 +31,4 @@ async function getAuction(event) {
     };
 }
 
-export const handler = getAuction;
+export const handler: APIGatewayProxyHandler = getAuction;

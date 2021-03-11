@@ -1,11 +1,18 @@
 import * as AWS from "aws-sdk";
-
+import {
+    APIGatewayProxyEvent,
+    APIGatewayProxyResult,
+    APIGatewayProxyHandler,
+} from "aws-lambda";
+import { PlaceBidRequest } from "../../requests/placeBidRequest";
 const docClient = new AWS.DynamoDB.DocumentClient();
 const auctionTable = process.env.AUCTION_TABLE;
 
-async function placeBid(event) {
+async function placeBid(
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
     const auctionId = event.pathParameters.auctionId;
-    const bid = JSON.parse(event.body);
+    const bid: PlaceBidRequest = JSON.parse(event.body);
     let updatedAuction;
 
     // TODO: Check if auction Id Exists or not
@@ -32,4 +39,4 @@ async function placeBid(event) {
     };
 }
 
-export const handler = placeBid;
+export const handler: APIGatewayProxyHandler = placeBid;

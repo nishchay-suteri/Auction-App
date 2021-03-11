@@ -1,11 +1,21 @@
 import * as AWS from "aws-sdk";
+import {
+    APIGatewayProxyEvent,
+    APIGatewayProxyResult,
+    APIGatewayProxyHandler,
+} from "aws-lambda";
+
+import { CreateAuctionRequest } from "../../requests/createAuctionRequest";
+
 import * as uuid from "uuid";
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 const auctionTable = process.env.AUCTION_TABLE;
 
-async function createAuction(event) {
-    const body = JSON.parse(event.body);
+async function createAuction(
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+    const body: CreateAuctionRequest = JSON.parse(event.body);
     const timestamp = new Date().toISOString();
     const auctionId = uuid.v4();
 
@@ -32,4 +42,4 @@ async function createAuction(event) {
     };
 }
 
-export const handler = createAuction;
+export const handler: APIGatewayProxyHandler = createAuction;
