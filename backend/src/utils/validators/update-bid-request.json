@@ -1,0 +1,12 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "update-bid",
+    "type": "object",
+    "properties": {
+        "amount": {
+            "type": "number"
+        }
+    },
+    "required": ["amount"],
+    "additionalProperties": false
+}

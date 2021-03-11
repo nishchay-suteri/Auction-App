@@ -3,6 +3,23 @@ service:
 
 plugins:
     - serverless-webpack
+    - serverless-reqvalidator-plugin
+    - serverless-aws-documentation
+
+custom:
+    documentation:
+        api:
+            info:
+                version: v1.0.0
+                title: Auction API
+                description: Serverless Auction Application
+        models:
+            - name: CreateAuctionRequest
+              contentType: application/json
+              schema: ${file(src/utils/validators/create-auction-request.json)}
+            - name: UpdateBidRequest
+              contentType: application/json
+              schema: ${file(src/utils/validators/update-bid-request.json)}
 
 provider:
     name: aws
@@ -28,6 +45,13 @@ functions:
             - http:
                   method: POST # post will also work
                   path: /auction
+                  reqValidatorName: RequestBodyValidator
+                  documentation:
+                      summary: Create an Auction Item
+                      description: Create an Auction Item
+                      requestModels:
+                          "application/json": CreateAuctionRequest
+
     getAuctions:
         handler: src/lambda/http/getAuctions.handler
         events:
@@ -46,6 +70,12 @@ functions:
             - http:
                   method: patch # PATCH (all Caps) will also work
                   path: /auction/{auctionId}/bid
+                  reqValidatorName: RequestBodyValidator
+                  documentation:
+                      summary: Update a Bid in Auction Item
+                      description: Update a Bid in Auction Item
+                      requestModels:
+                          "application/json": UpdateBidRequest
 
 # TODO: Move the Resources,Iam Roles to separate Files to make this serverless.yml file more readable
 resources:
@@ -62,3 +92,12 @@ resources:
                 KeySchema: # Without Kwyschema, DynamoDB deployment won't work
                     - AttributeName: auctionId
                       KeyType: HASH # Hash means Partition key
+        # Request Validator Resource
+        RequestBodyValidator:
+            Type: AWS::ApiGateway::RequestValidator
+            Properties:
+                Name: "request-body-validator"
+                RestApiId:
+                    Ref: ApiGatewayRestApi # Reference of the API Gateway build by serverless framework
+                ValidateRequestBody: true
+                ValidateRequestParameters: false
