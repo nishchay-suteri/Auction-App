@@ -24,25 +24,25 @@ provider:
 
 functions:
     createAuction:
-        handler: src/handlers/createAuction.handler
+        handler: src/lambda/http/createAuction.handler
         events:
             - http:
                   method: POST # post will also work
                   path: /auction
     getAuctions:
-        handler: src/handlers/getAuctions.handler
+        handler: src/lambda/http/getAuctions.handler
         events:
             - http:
                   method: get
                   path: /auctions
     getAuction:
-        handler: src/handlers/getAuction.handler
+        handler: src/lambda/http/getAuction.handler
         events:
             - http:
                   method: get # GET will also work
                   path: /auction/{auctionId}
     placeBid:
-        handler: src/handlers/placeBid.handler
+        handler: src/lambda/http/placeBid.handler
         events:
             - http:
                   method: patch # PATCH (all Caps) will also work
