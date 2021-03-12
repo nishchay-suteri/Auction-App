@@ -1,0 +1,11 @@
+AuctionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+        TableName: ${self:provider.environment.AUCTION_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions: # Attributes that MUST BE in our table
+            - AttributeName: auctionId
+              AttributeType: S
+        KeySchema: # Without Keyschema, DynamoDB deployment won't work
+            - AttributeName: auctionId
+              KeyType: HASH # Hash means Partition key

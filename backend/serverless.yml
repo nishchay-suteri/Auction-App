@@ -45,10 +45,7 @@ functions:
                       requestModels:
                           "application/json": CreateAuctionRequest
         iamRoleStatements:
-            - Effect: Allow
-              Action:
-                  - dynamodb:PutItem
-              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
+            - ${file(iam/AuctionTableIAM.yml):AuctionTablePutItem}
 
     getAuctions:
         handler: src/lambda/http/getAuctions.handler
@@ -57,10 +54,7 @@ functions:
                   method: get
                   path: /auctions
         iamRoleStatements:
-            - Effect: Allow
-              Action:
-                  - dynamodb:Scan
-              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableScan}
 
     getAuction:
         handler: src/lambda/http/getAuction.handler
@@ -69,10 +63,7 @@ functions:
                   method: get # GET will also work
                   path: /auction/{auctionId}
         iamRoleStatements:
-            - Effect: Allow
-              Action:
-                  - dynamodb:GetItem
-              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableGetItem}
     placeBid:
         handler: src/lambda/http/placeBid.handler
         events:
@@ -86,33 +77,12 @@ functions:
                       requestModels:
                           "application/json": UpdateBidRequest
         iamRoleStatements:
-            - Effect: Allow
-              Action:
-                  - dynamodb:GetItem
-                  - dynamodb:UpdateItem
-              Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableGetItem}
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem}
 
-# TODO: Move the Resources,Iam Roles to separate Files to make this serverless.yml file more readable
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax
     Resources:
-        AuctionTable:
-            Type: AWS::DynamoDB::Table
-            Properties:
-                TableName: ${self:provider.environment.AUCTION_TABLE}
-                BillingMode: PAY_PER_REQUEST
-                AttributeDefinitions: # Attributes that MUST BE in our table
-                    - AttributeName: auctionId
-                      AttributeType: S
-                KeySchema: # Without Kwyschema, DynamoDB deployment won't work
-                    - AttributeName: auctionId
-                      KeyType: HASH # Hash means Partition key
+        AuctionTable: ${file(resources/AuctionTable.yml):AuctionTable}
         # Request Validator Resource
-        RequestBodyValidator:
-            Type: AWS::ApiGateway::RequestValidator
-            Properties:
-                Name: "request-body-validator"
-                RestApiId:
-                    Ref: ApiGatewayRestApi # Reference of the API Gateway build by serverless framework
-                ValidateRequestBody: true
-                ValidateRequestParameters: false
+        RequestBodyValidator: ${file(resources/RequestBodyValidator.yml):RequestBodyValidator}
