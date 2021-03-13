@@ -6,7 +6,7 @@ import { BidItem } from "../models/BidItem";
 
 import { createLogger } from "../utils/logger";
 
-import { InternalServerError, NotFound } from "http-errors";
+import { InternalServerError } from "http-errors";
 
 const logger = createLogger("dataAccessLayer-auctionAccess");
 
@@ -35,7 +35,6 @@ export class AuctionAccess {
 
     async getAuctionById(auctionId: string): Promise<AuctionItem> {
         logger.info(`Getting Auction Item by ID: ${auctionId}`);
-        let auction: AuctionItem;
         try {
             const result = await this.docClient
                 .get({
@@ -46,18 +45,11 @@ export class AuctionAccess {
                 })
                 .promise();
             logger.info("Database Get Item By ID: Success");
-            auction = result.Item as AuctionItem;
+            return result.Item as AuctionItem;
         } catch (err) {
             logger.error(`Database Get Item By ID: Failure - ${err}`);
             throw new InternalServerError(err);
         }
-
-        if (!auction) {
-            logger.error(`Item Not Found: Failure`);
-            throw new NotFound(`Auction with ID ${auctionId} Not Found`);
-        }
-
-        return auction;
     }
 
     async getAuctions(): Promise<AuctionItem[]> {

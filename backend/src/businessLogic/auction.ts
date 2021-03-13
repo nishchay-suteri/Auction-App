@@ -7,6 +7,8 @@ import { PlaceBidRequest } from "../requests/placeBidRequest";
 
 import { createLogger } from "../utils/logger";
 
+import { Forbidden, NotFound } from "http-errors";
+
 const logger = createLogger("businessLogic-auction");
 
 import * as uuid from "uuid";
@@ -36,7 +38,19 @@ export async function getAuctionItemById(
     auctionId: string
 ): Promise<AuctionItem> {
     logger.info("API - Get Auction Item by ID");
-    return await auctionAccess.getAuctionById(auctionId);
+    let auction: AuctionItem;
+
+    try {
+        auction = await auctionAccess.getAuctionById(auctionId);
+    } catch (err) {
+        throw err;
+    }
+    if (!auction) {
+        logger.error(`API - Get Auction Item by ID: Failure`);
+        throw new NotFound(`Auction with ID ${auctionId} Not Found`);
+    }
+
+    return auction;
 }
 
 export async function getAuctionItems(): Promise<AuctionItem[]> {
@@ -48,8 +62,14 @@ export async function updateBidItem(
     placeBidRequest: PlaceBidRequest,
     auctionId: string
 ): Promise<AuctionItem> {
-    await getAuctionItemById(auctionId); // This will throw Key Not found error in case of incalid auctionID
     logger.info("API - Update Bid Item");
+
+    const auction = await getAuctionItemById(auctionId); // This will throw Key Not found error in case of incalid auctionID
+    if (placeBidRequest.amount <= auction.highestBid.amount) {
+        throw new Forbidden(
+            `Your Bid must be higher than ${auction.highestBid.amount}`
+        );
+    }
     const updatedBid: BidItem = {
         amount: placeBidRequest.amount,
     };
