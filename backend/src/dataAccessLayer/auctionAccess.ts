@@ -144,4 +144,32 @@ export class AuctionAccess {
             throw new InternalServerError(err);
         }
     }
+
+    async closeAuction(auctionId: string): Promise<AuctionItem> {
+        logger.info(`Closing Auction Item with Auction ID: ${auctionId}`);
+
+        try {
+            const result = await this.docClient
+                .update({
+                    TableName: this.auctionTable,
+                    Key: {
+                        auctionId: auctionId,
+                    },
+                    UpdateExpression: "set #status = :status",
+                    ExpressionAttributeNames: {
+                        "#status": "status",
+                    },
+                    ExpressionAttributeValues: {
+                        ":status": "CLOSED",
+                    },
+                    ReturnValues: "ALL_NEW",
+                })
+                .promise();
+            logger.info("Database Update Status: Success");
+            return result.Attributes as AuctionItem;
+        } catch (err) {
+            logger.error(`Database Update Status: Failure - ${err}`);
+            throw new InternalServerError(err);
+        }
+    }
 }

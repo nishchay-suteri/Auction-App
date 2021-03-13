@@ -1,11 +1,11 @@
 import { createLogger } from "../../utils/logger";
-import { getEndedAuctionItems } from "../../businessLogic/auction";
+import { processAuctionItems } from "../../businessLogic/auction";
 
 const logger = createLogger("lambda-schedule-processAuctions");
 
 async function processAuctions(event: any) {
     logger.info(`Processing Event: ${event}`);
-    await getEndedAuctionItems();
+    return await processAuctionItems();
 }
 
 export const handler = processAuctions;

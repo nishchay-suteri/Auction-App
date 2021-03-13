@@ -7,7 +7,7 @@ import { PlaceBidRequest } from "../requests/placeBidRequest";
 
 import { createLogger } from "../utils/logger";
 
-import { Forbidden, NotFound } from "http-errors";
+import { Forbidden, NotFound, InternalServerError } from "http-errors";
 
 const logger = createLogger("businessLogic-auction");
 
@@ -69,6 +69,7 @@ export async function updateBidItem(
 
     const auction = await getAuctionItemById(auctionId); // This will throw Key Not found error in case of incalid auctionID
     if (placeBidRequest.amount <= auction.highestBid.amount) {
+        logger.error(`API - Update Bid Item: Failure `);
         throw new Forbidden(
             `Your Bid must be higher than ${auction.highestBid.amount}`
         );
@@ -85,11 +86,40 @@ export async function deleteAuctionItem(auctionId: string) {
     return await auctionAccess.deleteAuction(auctionId);
 }
 
-export async function getEndedAuctionItems() {
-    logger.info("API - Get All Ended Auction Item");
+export async function getEndedAuctionItems(): Promise<AuctionItem[]> {
+    logger.info("API - Get All Ended Auction Items");
     const now = new Date();
-    const auctionsToClose = await auctionAccess.getEndedAuctions(
+    const auctionsToClose: AuctionItem[] = await auctionAccess.getEndedAuctions(
         now.toISOString()
     );
-    logger.info(auctionsToClose);
+    return auctionsToClose;
+}
+
+export async function closeAuction(
+    auctionsToClose: AuctionItem[]
+): Promise<number> {
+    logger.info("API - Close All Ended Auction Items");
+    const closePromises: Promise<AuctionItem>[] = auctionsToClose.map(
+        (auction: AuctionItem) => {
+            return auctionAccess.closeAuction(auction.auctionId);
+        }
+    );
+    // Parallel processing: Instead of putting await in each operation, we are waiting to finish all operations at last
+    await Promise.all(closePromises);
+    return closePromises.length;
+}
+
+export async function processAuctionItems() {
+    logger.info("API - Processing Auction Items for Closing");
+    try {
+        const auctionsToClose: AuctionItem[] = await getEndedAuctionItems();
+        const closedPromises: number = await closeAuction(auctionsToClose);
+        logger.info("API - Processing Auction Items for Closing: Success");
+        return { closed: closedPromises };
+    } catch (err) {
+        logger.error(
+            `API - Processing Auction Items for Closing: Failure ${err}`
+        );
+        throw new InternalServerError(err);
+    }
 }
