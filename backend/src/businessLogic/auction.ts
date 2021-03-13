@@ -68,8 +68,16 @@ export async function updateBidItem(
     logger.info("API - Update Bid Item");
 
     const auction = await getAuctionItemById(auctionId); // This will throw Key Not found error in case of incalid auctionID
+
+    if (auction.status !== "OPEN") {
+        logger.error(`API - Update Bid Item: Failure - Status is not Open`);
+        throw new Forbidden(`You can not bid on ${auction.status} Auctions`);
+    }
+
     if (placeBidRequest.amount <= auction.highestBid.amount) {
-        logger.error(`API - Update Bid Item: Failure `);
+        logger.error(
+            `API - Update Bid Item: Failure - Bid Amount is less than highest amount`
+        );
         throw new Forbidden(
             `Your Bid must be higher than ${auction.highestBid.amount}`
         );
