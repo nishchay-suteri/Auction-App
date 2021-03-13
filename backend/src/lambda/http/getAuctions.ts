@@ -11,9 +11,10 @@ async function getAuctions(
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     logger.info(`Processing Event: ${event}`);
+    const status = event.queryStringParameters.status;
 
     try {
-        const auctions = await getAuctionItems();
+        const auctions = await getAuctionItems(status);
         logger.info("Success");
         return {
             statusCode: 200,

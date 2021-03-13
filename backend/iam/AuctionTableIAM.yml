@@ -4,7 +4,7 @@ AuctionTablePutItem:
         - dynamodb:PutItem
     Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_TABLE}
 
-AuctionTableScan:
+AuctionTableScan: # We are not using scan now(using qury instead), we can remove this declaration.
     Effect: Allow
     Action:
         - dynamodb:Scan

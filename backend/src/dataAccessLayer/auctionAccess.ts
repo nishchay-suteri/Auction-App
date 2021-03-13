@@ -54,11 +54,21 @@ export class AuctionAccess {
         }
     }
 
-    async getAuctions(): Promise<AuctionItem[]> {
-        logger.info("Getting All Auction Items");
+    async getAuctions(status: string): Promise<AuctionItem[]> {
+        logger.info(`Getting All Auction Items with status ${status}`);
         try {
             const result = await this.docClient
-                .scan({ TableName: this.auctionTable })
+                .query({
+                    TableName: this.auctionTable,
+                    IndexName: this.statusAndEndDateIndex,
+                    KeyConditionExpression: "#status = :status",
+                    ExpressionAttributeNames: {
+                        "#status": "status",
+                    },
+                    ExpressionAttributeValues: {
+                        ":status": status,
+                    },
+                })
                 .promise();
             logger.info("Database Get All Items: Success");
             const items = result.Items;

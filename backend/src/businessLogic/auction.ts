@@ -56,9 +56,9 @@ export async function getAuctionItemById(
     return auction;
 }
 
-export async function getAuctionItems(): Promise<AuctionItem[]> {
+export async function getAuctionItems(status: string): Promise<AuctionItem[]> {
     logger.info("API - Get All Auction Items");
-    return await auctionAccess.getAuctions();
+    return await auctionAccess.getAuctions(status);
 }
 
 export async function updateBidItem(

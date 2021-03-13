@@ -55,7 +55,7 @@ functions:
                   method: get
                   path: /auctions
         iamRoleStatements:
-            - ${file(iam/AuctionTableIAM.yml):AuctionTableScan}
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
 
     getAuction:
         handler: src/lambda/http/getAuction.handler
