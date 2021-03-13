@@ -5,9 +5,7 @@ import { createLogger } from "../../utils/logger";
 
 const logger = createLogger("lambda-http-getAuctions");
 
-import middy from "@middy/core";
-import httpEventNormalizer from "@middy/http-event-normalizer";
-import httpErrorHandler from "@middy/http-error-handler";
+import commonMiddleware from "../../utils/middleware/commonMiddleware";
 
 async function placeBid(
     event: APIGatewayProxyEvent
@@ -28,6 +26,4 @@ async function placeBid(
     }
 }
 
-export const handler = middy(placeBid)
-    .use(httpEventNormalizer())
-    .use(httpErrorHandler());
+export const handler = commonMiddleware(placeBid);

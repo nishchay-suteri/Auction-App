@@ -3,9 +3,7 @@ import { getAuctionItems } from "../../businessLogic/auction";
 
 import { createLogger } from "../../utils/logger";
 
-import middy from "@middy/core";
-import httpEventNormalizer from "@middy/http-event-normalizer";
-import httpErrorHandler from "@middy/http-error-handler";
+import commonMiddleware from "../../utils/middleware/commonMiddleware";
 
 const logger = createLogger("lambda-http-getAuctions");
 
@@ -27,6 +25,4 @@ async function getAuctions(
     }
 }
 
-export const handler = middy(getAuctions)
-    .use(httpEventNormalizer())
-    .use(httpErrorHandler());
+export const handler = commonMiddleware(getAuctions);
