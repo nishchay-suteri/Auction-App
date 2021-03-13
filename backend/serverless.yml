@@ -80,6 +80,12 @@ functions:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableGetItem}
             - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem}
 
+    processAuctions:
+        handler: src/lambda/schedule/processAuctions.handler
+        # TODO: For testing, removing scheduling of function.. Uncomment this for production
+        # events:
+        #     - schedule: rate(1 minute)
+
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax
     Resources:
