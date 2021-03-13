@@ -19,14 +19,17 @@ export async function createAuctionItem(
     createAuctionRequest: CreateAuctionRequest
 ): Promise<AuctionItem> {
     logger.info("API - Create Auction Item");
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date();
+    const endDate = new Date();
+    endDate.setHours(timestamp.getHours() + 1);
     const auctionId = uuid.v4();
 
     const newAuctionItem: AuctionItem = {
         auctionId: auctionId,
         title: createAuctionRequest.title,
         status: "OPEN",
-        createdAt: timestamp,
+        createdAt: timestamp.toISOString(),
+        endingAt: endDate.toISOString(),
         highestBid: {
             amount: 0,
         },
@@ -80,4 +83,13 @@ export async function deleteAuctionItem(auctionId: string) {
     // TODO: Check if Id Exists or not.. i.e. whether auctions is set or undefined
     logger.info("API - Delete Auction Item");
     return await auctionAccess.deleteAuction(auctionId);
+}
+
+export async function getEndedAuctionItems() {
+    logger.info("API - Get All Ended Auction Item");
+    const now = new Date();
+    const auctionsToClose = await auctionAccess.getEndedAuctions(
+        now.toISOString()
+    );
+    logger.info(auctionsToClose);
 }

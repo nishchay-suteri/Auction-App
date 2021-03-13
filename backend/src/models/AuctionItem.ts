@@ -4,5 +4,6 @@ export interface AuctionItem {
     title: string;
     status: string; // TODO: May Change Later
     createdAt: string;
+    endingAt: string;
     highestBid: BidItem;
 }

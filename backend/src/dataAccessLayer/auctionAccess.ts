@@ -13,7 +13,9 @@ const logger = createLogger("dataAccessLayer-auctionAccess");
 export class AuctionAccess {
     constructor(
         private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
-        private readonly auctionTable = process.env.AUCTION_TABLE
+        private readonly auctionTable = process.env.AUCTION_TABLE,
+        private readonly statusAndEndDateIndex = process.env
+            .AUCTION_STATUS_END_DATE_INDEX
     ) {}
 
     async createAuction(newItem: AuctionItem): Promise<AuctionItem> {
@@ -111,6 +113,34 @@ export class AuctionAccess {
             logger.info("Database Delete Auction Item: Success");
         } catch (err) {
             logger.error(`Database Delete Auction Item: Failure - ${err}`);
+            throw new InternalServerError(err);
+        }
+    }
+
+    async getEndedAuctions(now: string): Promise<AuctionItem[]> {
+        logger.info(`Getting Ended Auction Items for End Date: ${now}`);
+        try {
+            const result = await this.docClient
+                .query({
+                    TableName: this.auctionTable,
+                    IndexName: this.statusAndEndDateIndex,
+                    KeyConditionExpression:
+                        "#status = :status AND endingAt <= :now",
+                    ExpressionAttributeNames: {
+                        "#status": "status",
+                    },
+                    ExpressionAttributeValues: {
+                        ":status": "OPEN",
+                        ":now": now,
+                    },
+                })
+                .promise();
+            logger.info("Database Get Ended Auction Items: Success");
+            const items = result.Items;
+            return items as AuctionItem[];
+        } catch (err) {
+            logger.error(`Database Get Ended Auction Items: Failure ${err}`);
+            // NOTE: for development purpose, we are sending err..
             throw new InternalServerError(err);
         }
     }

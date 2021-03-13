@@ -6,6 +6,19 @@ AuctionTable:
         AttributeDefinitions: # Attributes that MUST BE in our table
             - AttributeName: auctionId
               AttributeType: S
+            - AttributeName: status # Since we want to query using status(adding in global index), we need to define attribute here
+              AttributeType: S
+            - AttributeName: endingAt # Since we want to query using endingAt(adding in global index), we need to define attribute here
+              AttributeType: S
         KeySchema: # Without Keyschema, DynamoDB deployment won't work
             - AttributeName: auctionId
               KeyType: HASH # Hash means Partition key
+        GlobalSecondaryIndexes:
+            - IndexName: ${self:provider.environment.AUCTION_STATUS_END_DATE_INDEX}
+              KeySchema:
+                  - AttributeName: status
+                    KeyType: HASH
+                  - AttributeName: endingAt
+                    KeyType: RANGE
+              Projection:
+                  ProjectionType: ALL # What attributes to copyto global seconday index
