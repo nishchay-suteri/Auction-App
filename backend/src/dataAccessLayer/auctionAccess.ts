@@ -5,7 +5,8 @@ import { AuctionItem } from "../models/AuctionItem";
 import { BidItem } from "../models/BidItem";
 
 import { createLogger } from "../utils/logger";
-import { PromiseResult } from "aws-sdk/lib/request";
+
+import { InternalServerError, NotFound } from "http-errors";
 
 const logger = createLogger("dataAccessLayer-auctionAccess");
 
@@ -25,18 +26,18 @@ export class AuctionAccess {
                 })
                 .promise(); // By default, AWS APIs use callbacks.. So, to use async/await, we have to put .promise()
             logger.info("Database Insert: Success");
+            return newItem;
         } catch (err) {
             logger.error(`Database Insert: Failure - ${err}`);
-            throw err;
+            throw new InternalServerError(err);
         }
-        return newItem;
     }
 
     async getAuctionById(auctionId: string): Promise<AuctionItem> {
         logger.info(`Getting Auction Item by ID: ${auctionId}`);
-        let result: PromiseResult<DocumentClient.GetItemOutput, AWS.AWSError>;
+        let auction: AuctionItem;
         try {
-            result = await this.docClient
+            const result = await this.docClient
                 .get({
                     TableName: this.auctionTable,
                     Key: {
@@ -45,33 +46,34 @@ export class AuctionAccess {
                 })
                 .promise();
             logger.info("Database Get Item By ID: Success");
+            auction = result.Item as AuctionItem;
         } catch (err) {
             logger.error(`Database Get Item By ID: Failure - ${err}`);
-            throw err;
+            throw new InternalServerError(err);
         }
 
-        // TODO: Check if Id Exists or not.. i.e. whether auctions is set or undefined
-        /*
-        if(!auction){ // 404: not found}
-    */
-        return result.Item as AuctionItem;
+        if (!auction) {
+            logger.error(`Item Not Found: Failure`);
+            throw new NotFound(`Auction with ID ${auctionId} Not Found`);
+        }
+
+        return auction;
     }
 
     async getAuctions(): Promise<AuctionItem[]> {
         logger.info("Getting All Auction Items");
-        let result: PromiseResult<DocumentClient.ScanOutput, AWS.AWSError>;
         try {
-            result = await this.docClient
+            const result = await this.docClient
                 .scan({ TableName: this.auctionTable })
                 .promise();
             logger.info("Database Get All Items: Success");
+            const items = result.Items;
+            return items as AuctionItem[];
         } catch (err) {
             logger.error(`Database Get All Items: Failure ${err}`);
-            throw err;
+            // NOTE: for development purpose, we are sending err..
+            throw new InternalServerError(err);
         }
-
-        const items = result.Items;
-        return items as AuctionItem[];
     }
 
     async updateBid(
@@ -82,12 +84,8 @@ export class AuctionAccess {
             `Updating Bid Item [New Amount: ${updatedBid.amount}] with Auction ID: ${auctionId}`
         );
 
-        let result: PromiseResult<
-            DocumentClient.UpdateItemOutput,
-            AWS.AWSError
-        >;
         try {
-            result = await this.docClient
+            const result = await this.docClient
                 .update({
                     TableName: this.auctionTable,
                     Key: {
@@ -101,11 +99,11 @@ export class AuctionAccess {
                 })
                 .promise();
             logger.info("Database Update Bid: Success");
+            return result.Attributes as AuctionItem;
         } catch (err) {
             logger.error(`Database Update Bid: Failure - ${err}`);
-            throw err;
+            throw new InternalServerError(err);
         }
-        return result.Attributes as AuctionItem;
     }
 
     async deleteAuction(auctionId: string) {
@@ -121,7 +119,7 @@ export class AuctionAccess {
             logger.info("Database Delete Auction Item: Success");
         } catch (err) {
             logger.error(`Database Delete Auction Item: Failure - ${err}`);
-            throw err;
+            throw new InternalServerError(err);
         }
     }
 }

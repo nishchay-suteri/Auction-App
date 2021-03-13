@@ -1,13 +1,13 @@
-import {
-    APIGatewayProxyEvent,
-    APIGatewayProxyResult,
-    APIGatewayProxyHandler,
-} from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { PlaceBidRequest } from "../../requests/placeBidRequest";
 import { updateBidItem } from "../../businessLogic/auction";
 import { createLogger } from "../../utils/logger";
 
 const logger = createLogger("lambda-http-getAuctions");
+
+import middy from "@middy/core";
+import httpEventNormalizer from "@middy/http-event-normalizer";
+import httpErrorHandler from "@middy/http-error-handler";
 
 async function placeBid(
     event: APIGatewayProxyEvent
@@ -24,11 +24,10 @@ async function placeBid(
         };
     } catch (err) {
         logger.error(`Failure: ${err}`);
-        return {
-            statusCode: 400, // Resource created
-            body: JSON.stringify({ error: err }),
-        };
+        throw err;
     }
 }
 
-export const handler: APIGatewayProxyHandler = placeBid;
+export const handler = middy(placeBid)
+    .use(httpEventNormalizer())
+    .use(httpErrorHandler());

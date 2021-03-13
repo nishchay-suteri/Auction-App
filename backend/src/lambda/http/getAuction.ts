@@ -1,12 +1,12 @@
-import {
-    APIGatewayProxyEvent,
-    APIGatewayProxyResult,
-    APIGatewayProxyHandler,
-} from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 import { getAuctionItemById } from "../../businessLogic/auction";
 
 import { createLogger } from "../../utils/logger";
+
+import middy from "@middy/core";
+import httpEventNormalizer from "@middy/http-event-normalizer";
+import httpErrorHandler from "@middy/http-error-handler";
 
 const logger = createLogger("lambda-http-getAuction");
 
@@ -14,8 +14,8 @@ async function getAuction(
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     logger.info(`Processing Event: ${event}`);
-
     const auctionId = event.pathParameters.auctionId;
+
     try {
         const auction = await getAuctionItemById(auctionId);
         logger.info("Success");
@@ -25,11 +25,10 @@ async function getAuction(
         };
     } catch (err) {
         logger.error(`Failure: ${err}`);
-        return {
-            statusCode: 400, // Resource created
-            body: JSON.stringify({ error: err }),
-        };
+        throw err;
     }
 }
 
-export const handler: APIGatewayProxyHandler = getAuction;
+export const handler = middy(getAuction)
+    .use(httpEventNormalizer())
+    .use(httpErrorHandler());

@@ -6,6 +6,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/aws-lambda": "^8.10.17",
+        "@types/http-errors": "^1.8.0",
         "@types/jsonwebtoken": "^8.3.2",
         "@types/node": "^10.14.4",
         "@types/uuid": "^8.3.0",
@@ -18,7 +19,11 @@
         "webpack": "^4.35.2"
     },
     "dependencies": {
+        "@middy/core": "^1.5.2",
+        "@middy/http-error-handler": "^1.5.2",
+        "@middy/http-event-normalizer": "^1.5.2",
         "aws-sdk": "^2.639.0",
+        "http-errors": "^1.8.0",
         "uuid": "^8.3.2",
         "winston": "^3.3.3"
     }

@@ -48,7 +48,7 @@ export async function updateBidItem(
     placeBidRequest: PlaceBidRequest,
     auctionId: string
 ): Promise<AuctionItem> {
-    // TODO: Check if Id Exists or not.. i.e. whether auctions is set or undefined
+    await getAuctionItemById(auctionId); // This will throw Key Not found error in case of incalid auctionID
     logger.info("API - Update Bid Item");
     const updatedBid: BidItem = {
         amount: placeBidRequest.amount,
