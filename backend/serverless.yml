@@ -41,6 +41,7 @@ functions:
                   method: POST # post will also work
                   path: /auction
                   authorizer: Auth
+                  cors: true
                   reqValidatorName: RequestBodyValidator
                   documentation:
                       summary: Create an Auction Item
@@ -57,6 +58,7 @@ functions:
                   method: get
                   path: /auctions
                   authorizer: Auth
+                  cors: true
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
 
@@ -67,6 +69,7 @@ functions:
                   method: get # GET will also work
                   path: /auction/{auctionId}
                   authorizer: Auth
+                  cors: true
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableGetItem}
     placeBid:
@@ -76,6 +79,7 @@ functions:
                   method: patch # PATCH (all Caps) will also work
                   path: /auction/{auctionId}/bid
                   authorizer: Auth
+                  cors: true
                   reqValidatorName: RequestBodyValidator
                   documentation:
                       summary: Update a Bid in Auction Item
