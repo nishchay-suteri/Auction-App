@@ -1,3 +1,4 @@
+import { Forbidden, NotFound, InternalServerError } from "http-errors";
 import { AuctionAccess } from "../dataAccessLayer/auctionAccess";
 import { AuctionItem } from "../models/AuctionItem";
 import { BidItem } from "../models/BidItem";
@@ -5,10 +6,9 @@ import { BidItem } from "../models/BidItem";
 import { CreateAuctionRequest } from "../requests/CreateAuctionRequest";
 import { PlaceBidRequest } from "../requests/placeBidRequest";
 
+import { getUserEmail } from "../utils/auth/utils";
+
 import { createLogger } from "../utils/logger";
-
-import { Forbidden, NotFound, InternalServerError } from "http-errors";
-
 const logger = createLogger("businessLogic-auction");
 
 import * as uuid from "uuid";
@@ -16,13 +16,15 @@ import * as uuid from "uuid";
 const auctionAccess = new AuctionAccess();
 
 export async function createAuctionItem(
-    createAuctionRequest: CreateAuctionRequest
+    createAuctionRequest: CreateAuctionRequest,
+    jwtToken: string
 ): Promise<AuctionItem> {
     logger.info("API - Create Auction Item");
     const timestamp = new Date();
     const endDate = new Date();
     endDate.setHours(timestamp.getHours() + 1);
     const auctionId = uuid.v4();
+    const userEmail: string = getUserEmail(jwtToken);
 
     const newAuctionItem: AuctionItem = {
         auctionId: auctionId,
@@ -33,6 +35,7 @@ export async function createAuctionItem(
         highestBid: {
             amount: 0,
         },
+        seller: userEmail,
     };
     return await auctionAccess.createAuction(newAuctionItem);
 }

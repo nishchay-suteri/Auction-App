@@ -6,4 +6,5 @@ export interface AuctionItem {
     createdAt: string;
     endingAt: string;
     highestBid: BidItem;
+    seller: string;
 }

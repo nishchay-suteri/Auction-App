@@ -7,6 +7,8 @@ import { createLogger } from "../../utils/logger";
 
 import commonMiddleware from "../../utils/middleware/commonMiddleware";
 
+import { getJwtToken } from "../../utils/auth/utils";
+
 const logger = createLogger("lambda-http-createAuction");
 
 async function createAuction(
@@ -14,8 +16,9 @@ async function createAuction(
 ): Promise<APIGatewayProxyResult> {
     logger.info(`Processing Event: ${event}`);
     const newAuction: CreateAuctionRequest = JSON.parse(event.body);
+    const jwtToken: string = getJwtToken(event);
     try {
-        const auction = await createAuctionItem(newAuction);
+        const auction = await createAuctionItem(newAuction, jwtToken);
         logger.info("Success");
         return {
             statusCode: 201, // Resource created
