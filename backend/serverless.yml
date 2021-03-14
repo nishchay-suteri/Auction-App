@@ -39,6 +39,7 @@ functions:
             - http:
                   method: POST # post will also work
                   path: /auction
+                  authorizer: Auth
                   reqValidatorName: RequestBodyValidator
                   documentation:
                       summary: Create an Auction Item
@@ -54,6 +55,7 @@ functions:
             - http:
                   method: get
                   path: /auctions
+                  authorizer: Auth
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
 
@@ -63,6 +65,7 @@ functions:
             - http:
                   method: get # GET will also work
                   path: /auction/{auctionId}
+                  authorizer: Auth
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableGetItem}
     placeBid:
@@ -71,6 +74,7 @@ functions:
             - http:
                   method: patch # PATCH (all Caps) will also work
                   path: /auction/{auctionId}/bid
+                  authorizer: Auth
                   reqValidatorName: RequestBodyValidator
                   documentation:
                       summary: Update a Bid in Auction Item
@@ -90,9 +94,15 @@ functions:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
             - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem}
 
+    Auth:
+        handler: src/lambda/auth/auth0Authorizer.handler
+
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax
     Resources:
         AuctionTable: ${file(resources/AuctionTable.yml):AuctionTable}
         # Request Validator Resource
         RequestBodyValidator: ${file(resources/RequestBodyValidator.yml):RequestBodyValidator}
+
+        # When request is denied from authorizer, gateway doesn't set proper cors headers to response. We need to add following resource for doing this
+        GatewayResponseDefault4XX: ${file(resources/GatewayResponseDefault4XX.yml):GatewayResponseDefault4XX}
