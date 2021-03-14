@@ -31,6 +31,7 @@ provider:
     environment: # global environment variables - accessible to all lambda functions
         AUCTION_TABLE: AuctionTable-${self:provider.stage}
         AUCTION_STATUS_END_DATE_INDEX: statusAndEndDateIndex
+        AUTH0_JWKS_URL: https://dev-h7sblwm7.us.auth0.com/.well-known/jwks.json
 
 functions:
     createAuction:
