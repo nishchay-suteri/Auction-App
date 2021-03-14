@@ -34,6 +34,7 @@ export async function createAuctionItem(
         endingAt: endDate.toISOString(),
         highestBid: {
             amount: 0,
+            bidder: "", // Default, there is no bidder
         },
         seller: userEmail,
     };
@@ -66,17 +67,20 @@ export async function getAuctionItems(status: string): Promise<AuctionItem[]> {
 
 export async function updateBidItem(
     placeBidRequest: PlaceBidRequest,
-    auctionId: string
+    auctionId: string,
+    jwtToken: string
 ): Promise<AuctionItem> {
     logger.info("API - Update Bid Item");
 
     const auction = await getAuctionItemById(auctionId); // This will throw Key Not found error in case of incalid auctionID
 
+    // Auction Status Validation
     if (auction.status !== "OPEN") {
         logger.error(`API - Update Bid Item: Failure - Status is not Open`);
         throw new Forbidden(`You can not bid on ${auction.status} Auctions`);
     }
 
+    // Bid amount validation
     if (placeBidRequest.amount <= auction.highestBid.amount) {
         logger.error(
             `API - Update Bid Item: Failure - Bid Amount is less than highest amount`
@@ -85,8 +89,28 @@ export async function updateBidItem(
             `Your Bid must be higher than ${auction.highestBid.amount}`
         );
     }
+
+    const bidderEmail: string = getUserEmail(jwtToken);
+
+    // Bidder Identity validation
+    if (bidderEmail === auction.seller) {
+        logger.error(
+            `API - Update Bid Item: Failure - User and Bidder are same`
+        );
+        throw new Forbidden(`You can't bid on your own auctions!`);
+    }
+
+    // Avoid double bidding
+    if (bidderEmail === auction.highestBid.bidder) {
+        logger.error(
+            `API - Update Bid Item: Failure - Bidder is already highest Bidder`
+        );
+        throw new Forbidden(`You are already the highest bidder`);
+    }
+
     const updatedBid: BidItem = {
         amount: placeBidRequest.amount,
+        bidder: bidderEmail,
     };
     return await auctionAccess.updateBid(auctionId, updatedBid);
 }

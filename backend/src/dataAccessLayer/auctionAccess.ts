@@ -95,9 +95,11 @@ export class AuctionAccess {
                     Key: {
                         auctionId: auctionId,
                     },
-                    UpdateExpression: "set highestBid.amount = :amount",
+                    UpdateExpression:
+                        "set highestBid.amount = :amount , highestBid.bidder = :bidder",
                     ExpressionAttributeValues: {
                         ":amount": updatedBid.amount,
+                        ":bidder": updatedBid.bidder,
                     },
                     ReturnValues: "ALL_NEW",
                 })

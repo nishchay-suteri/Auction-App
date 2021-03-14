@@ -3,4 +3,5 @@
  */
 export interface BidItem {
     amount: number;
+    bidder: string;
 }
