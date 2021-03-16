@@ -1,0 +1,6 @@
+# Will allow to send EMail
+SendMailIAM:
+    Effect: Allow
+    Action:
+        - ses:SendEmail
+    Resource: arn:aws:ses:*
