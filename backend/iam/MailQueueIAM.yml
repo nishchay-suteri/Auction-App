@@ -1,4 +1,5 @@
-MailQueueIAM:
+# NOTE: ReceiveMessage IAM Policy is not required.
+MailQueueReceiveMessage:
     Effect: Allow
     Action:
         - sqs:ReceiveMessage
