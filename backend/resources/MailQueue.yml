@@ -1,0 +1,4 @@
+MailQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+        QueueName: ${self:provider.environment.MAIL_QUEUE_NAME}

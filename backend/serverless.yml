@@ -32,6 +32,7 @@ provider:
         AUCTION_TABLE: AuctionTable-${self:provider.stage}
         AUCTION_STATUS_END_DATE_INDEX: statusAndEndDateIndex
         AUTH0_JWKS_URL: https://dev-h7sblwm7.us.auth0.com/.well-known/jwks.json
+        MAIL_QUEUE_NAME: MailQueue-${self:provider.stage}
 
 functions:
     createAuction:
@@ -104,7 +105,10 @@ functions:
 
     sendMail:
         handler: src/lambda/ses/sendMail.handler
-        # No Event trigger yet, will manually trigger the function currently
+        events:
+            - sqs:
+                  arn: !GetAtt MailQueue.Arn
+                  batchSize: 1 # 1 email at a time.. By default, uses 10
         iamRoleStatements:
             - ${file(iam/SendMailIAM.yml):SendMailIAM}
 
@@ -114,6 +118,7 @@ resources:
         AuctionTable: ${file(resources/AuctionTable.yml):AuctionTable}
         # Request Validator Resource
         RequestBodyValidator: ${file(resources/RequestBodyValidator.yml):RequestBodyValidator}
-
         # When request is denied from authorizer, gateway doesn't set proper cors headers to response. We need to add following resource for doing this
         GatewayResponseDefault4XX: ${file(resources/GatewayResponseDefault4XX.yml):GatewayResponseDefault4XX}
+        # Mail Queue - SQS
+        MailQueue: ${file(resources/MailQueue.yml):MailQueue}
