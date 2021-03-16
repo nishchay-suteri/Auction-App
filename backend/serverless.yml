@@ -33,7 +33,7 @@ provider:
         AUCTION_STATUS_END_DATE_INDEX: statusAndEndDateIndex
         AUTH0_JWKS_URL: https://dev-h7sblwm7.us.auth0.com/.well-known/jwks.json
         MAIL_QUEUE_NAME: MailQueue-${self:provider.stage}
-
+        MAIL_QUEUE_URL: !Ref MailQueue # As per the documentation, Ref MailQueue returns URL
 functions:
     createAuction:
         handler: src/lambda/http/createAuction.handler
@@ -99,6 +99,7 @@ functions:
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
             - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem}
+            - ${file(iam/MailQueueIAM.yml):MailQueueSendMessage}
 
     Auth:
         handler: src/lambda/auth/auth0Authorizer.handler
@@ -111,6 +112,7 @@ functions:
                   batchSize: 1 # 1 email at a time.. By default, uses 10
         iamRoleStatements:
             - ${file(iam/SendMailIAM.yml):SendMailIAM}
+            # Is MailQueueReceiveMessage not required? It is working currently
 
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax

@@ -4,3 +4,9 @@ MailQueueReceiveMessage:
     Action:
         - sqs:ReceiveMessage
     Resource: !GetAtt MailQueue.Arn # We can hardcode Arn, but since we have defined Mail Queue in our yml file, Mail Queue is now CloudFormation Resource. So, we can use !Getatt for getting ARN
+
+MailQueueSendMessage:
+    Effect: Allow
+    Action:
+        - sqs:SendMessage
+    Resource: !GetAtt MailQueue.Arn
