@@ -1,4 +1,4 @@
-import { Forbidden, NotFound, InternalServerError } from "http-errors";
+import { Forbidden, NotFound } from "http-errors";
 import { AuctionAccess } from "../dataAccessLayer/auctionAccess";
 import { AuctionItem } from "../models/AuctionItem";
 import { BidItem } from "../models/BidItem";
@@ -142,19 +142,4 @@ export async function closeAuction(
     // Parallel processing: Instead of putting await in each operation, we are waiting to finish all operations at last
     await Promise.all(closePromises);
     return closePromises.length;
-}
-
-export async function processAuctionItems() {
-    logger.info("API - Processing Auction Items for Closing");
-    try {
-        const auctionsToClose: AuctionItem[] = await getEndedAuctionItems();
-        const closedPromises: number = await closeAuction(auctionsToClose);
-        logger.info("API - Processing Auction Items for Closing: Success");
-        return { closed: closedPromises };
-    } catch (err) {
-        logger.error(
-            `API - Processing Auction Items for Closing: Failure ${err}`
-        );
-        throw new InternalServerError(err);
-    }
 }
