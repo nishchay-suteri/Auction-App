@@ -1,0 +1,32 @@
+ImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+            CorsRules:
+                - AllowedOrigins:
+                      - "*"
+                  AllowedHeaders:
+                      - "*"
+                  AllowedMethods:
+                      - GET
+                      - PUT
+                      - POST
+                      - DELETE
+                      - HEAD
+                  MaxAge: 3000
+
+# For allowing all to access the s3 bucket resources..(From normal http request.. Not for Lambda functions)
+BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+        PolicyDocument:
+            Id: MyPolicy
+            Version: "2012-10-17"
+            Statement:
+                - Sid: PubicReadForGetBucketObjects
+                  Effect: Allow
+                  Principal: "*" # Allow all to access
+                  Action: "s3:GetObject"
+                  Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+        Bucket: !Ref ImagesBucket

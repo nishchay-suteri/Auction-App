@@ -34,6 +34,8 @@ provider:
         AUTH0_JWKS_URL: https://dev-h7sblwm7.us.auth0.com/.well-known/jwks.json
         MAIL_QUEUE_NAME: MailQueue-${self:provider.stage}
         MAIL_QUEUE_URL: !Ref MailQueue # As per the documentation, Ref MailQueue returns URL
+        IMAGES_S3_BUCKET: serverless-auctions-suteri-images-${self:provider.stage}
+
 functions:
     createAuction:
         handler: src/lambda/http/createAuction.handler
@@ -124,3 +126,5 @@ resources:
         GatewayResponseDefault4XX: ${file(resources/GatewayResponseDefault4XX.yml):GatewayResponseDefault4XX}
         # Mail Queue - SQS
         MailQueue: ${file(resources/MailQueue.yml):MailQueue}
+        ImagesBucket: ${file(resources/ImagesBucket.yml):ImagesBucket}
+        BucketPolicy: ${file(resources/ImagesBucket.yml):BucketPolicy}
