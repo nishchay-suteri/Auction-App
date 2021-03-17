@@ -152,6 +152,14 @@ export async function SendMessageToSQSForClosedItem(
 ) {
     logger.info("Send Message to SQS For Closed Auction");
     const { title, seller, highestBid } = closedAuctionItem;
+    if (highestBid.amount === 0) {
+        const sellerNoBidMessageBody: SQSMessageBodyRequest = {
+            subject: "No Bids on your auction Item :(",
+            recipient: seller,
+            body: `Oh No!! Your item ${title} didn't get any bids. Better luck next time!`,
+        };
+        return sqsAccess.sendMessageToSQS(sellerNoBidMessageBody); // No AWAIT Here
+    }
     const sellerMessageBody: SQSMessageBodyRequest = {
         subject: "Your Item has been sold!",
         recipient: seller,
