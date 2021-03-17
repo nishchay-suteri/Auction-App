@@ -1,5 +1,6 @@
 import { Forbidden, NotFound } from "http-errors";
 import { AuctionAccess } from "../dataAccessLayer/auctionAccess";
+import { SQSAccess } from "../dataAccessLayer/SQSAccess";
 import { AuctionItem } from "../models/AuctionItem";
 import { BidItem } from "../models/BidItem";
 
@@ -12,8 +13,10 @@ import { createLogger } from "../utils/logger";
 const logger = createLogger("businessLogic-auction");
 
 import * as uuid from "uuid";
+import { SQSMessageBodyRequest } from "../requests/SQSMessageBodyRequest";
 
 const auctionAccess = new AuctionAccess();
+const sqsAccess = new SQSAccess();
 
 export async function createAuctionItem(
     createAuctionRequest: CreateAuctionRequest,
@@ -142,4 +145,24 @@ export async function closeAuction(
     // Parallel processing: Instead of putting await in each operation, we are waiting to finish all operations at last
     await Promise.all(closePromises);
     return closePromises.length;
+}
+
+export async function SendMessageToSQSForClosedItem(
+    closedAuctionItem: AuctionItem
+) {
+    logger.info("Send Message to SQS For Closed Auction");
+    const { title, seller, highestBid } = closedAuctionItem;
+    const sellerMessageBody: SQSMessageBodyRequest = {
+        subject: "Your Item has been sold!",
+        recipient: seller,
+        body: `Wohoo!! Your item ${title} is sold for $${highestBid.amount}`,
+    };
+    const notifySeller = sqsAccess.sendMessageToSQS(sellerMessageBody);
+    const bidderMessageBody: SQSMessageBodyRequest = {
+        subject: "You won an auction!",
+        recipient: highestBid.bidder,
+        body: `What a great deal! You got yourself a ${title} for $${highestBid.amount}`,
+    };
+    const notifyBidder = sqsAccess.sendMessageToSQS(bidderMessageBody);
+    Promise.all([notifyBidder, notifySeller]);
 }

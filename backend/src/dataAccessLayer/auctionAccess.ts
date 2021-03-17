@@ -7,7 +7,6 @@ import { BidItem } from "../models/BidItem";
 import { createLogger } from "../utils/logger";
 
 import { InternalServerError } from "http-errors";
-import { SendEmailForClosedItem } from "../utils/sqs/SQSHelper";
 
 const logger = createLogger("dataAccessLayer-auctionAccess");
 
@@ -180,7 +179,6 @@ export class AuctionAccess {
                 .promise();
             logger.info("Database Update Status: Success");
             const item: AuctionItem = result.Attributes as AuctionItem;
-            await SendEmailForClosedItem(item);
             return item;
         } catch (err) {
             logger.error(`Database Update Status: Failure - ${err}`);

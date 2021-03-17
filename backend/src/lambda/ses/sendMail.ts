@@ -1,6 +1,7 @@
 import * as AWS from "aws-sdk";
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { createLogger } from "../../utils/logger";
+import { SQSMessageBodyRequest } from "../../requests/SQSMessageBodyRequest";
 
 // SES - Amazon Simple Email Service
 
@@ -15,7 +16,7 @@ async function sendMail(event: SQSEvent): Promise<AWS.SES.SendEmailResponse> {
     const record: SQSRecord = event.Records[0]; // Single and only response we are going to process - batchSize is 1
     logger.info(`Record received from SQS: ${JSON.stringify(record)}`);
 
-    const email = JSON.parse(record.body);
+    const email: SQSMessageBodyRequest = JSON.parse(record.body); // record.body ~ MessageBody in sqs.SendMessage()
 
     const { subject, body, recipient } = email;
 
