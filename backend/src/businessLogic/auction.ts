@@ -1,6 +1,8 @@
 import { Forbidden, NotFound } from "http-errors";
 import { AuctionAccess } from "../dataAccessLayer/auctionAccess";
 import { SQSAccess } from "../dataAccessLayer/SQSAccess";
+import { S3Access } from "../dataAccessLayer/S3Access";
+
 import { AuctionItem } from "../models/AuctionItem";
 import { BidItem } from "../models/BidItem";
 
@@ -15,8 +17,9 @@ const logger = createLogger("businessLogic-auction");
 import * as uuid from "uuid";
 import { SQSMessageBodyRequest } from "../requests/SQSMessageBodyRequest";
 
-const auctionAccess = new AuctionAccess();
-const sqsAccess = new SQSAccess();
+const auctionAccess: AuctionAccess = new AuctionAccess();
+const sqsAccess: SQSAccess = new SQSAccess();
+const s3Access: S3Access = new S3Access();
 
 export async function createAuctionItem(
     createAuctionRequest: CreateAuctionRequest,
@@ -173,4 +176,12 @@ export async function SendMessageToSQSForClosedItem(
     };
     const notifyBidder = sqsAccess.sendMessageToSQS(bidderMessageBody);
     return Promise.all([notifyBidder, notifySeller]);
+}
+
+export function uploadImage(auctionId: string) {
+    logger.info(`API - Upload Image - AuctionID: ${auctionId}`);
+
+    // TODO: Check if auctionID Exists
+    const url = s3Access.getSignedURL(auctionId); // Await is not required I think
+    return url;
 }
