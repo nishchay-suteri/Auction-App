@@ -164,5 +164,5 @@ export async function SendMessageToSQSForClosedItem(
         body: `What a great deal! You got yourself a ${title} for $${highestBid.amount}`,
     };
     const notifyBidder = sqsAccess.sendMessageToSQS(bidderMessageBody);
-    Promise.all([notifyBidder, notifySeller]);
+    return Promise.all([notifyBidder, notifySeller]);
 }

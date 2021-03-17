@@ -10,7 +10,7 @@ import { InternalServerError } from "http-errors";
 const logger = createLogger("lambda-schedule-processAuctions");
 
 async function sendMessageForClosedAuctions(auctionsClosed: AuctionItem[]) {
-    auctionsClosed.forEach(async (auction: AuctionItem) => {
+    for (const auction of auctionsClosed) {
         try {
             await SendMessageToSQSForClosedItem(auction);
             logger.info(
@@ -24,7 +24,7 @@ async function sendMessageForClosedAuctions(auctionsClosed: AuctionItem[]) {
             );
             throw err;
         }
-    });
+    }
 }
 
 async function processAuctions(event: any) {
