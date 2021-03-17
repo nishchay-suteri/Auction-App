@@ -1,0 +1,11 @@
+ImagesBucketPutObject:
+    Effect: Allow
+    Action:
+        - s3:PutObject # For generating Signed URL, PutObject Permission is REQUIRED
+    Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+
+ImagesBucketGetObject:
+    Effect: Allow
+    Action:
+        - s3:GetObject
+    Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*

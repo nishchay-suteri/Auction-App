@@ -35,6 +35,7 @@ provider:
         MAIL_QUEUE_NAME: MailQueue-${self:provider.stage}
         MAIL_QUEUE_URL: !Ref MailQueue # As per the documentation, Ref MailQueue returns URL
         IMAGES_S3_BUCKET: serverless-auctions-suteri-images-${self:provider.stage}
+        SIGNED_URL_EXPIRATION: 300
 
 functions:
     createAuction:
@@ -115,6 +116,18 @@ functions:
         iamRoleStatements:
             - ${file(iam/SendMailIAM.yml):SendMailIAM}
             # Is MailQueueReceiveMessage not required? It is working currently
+
+    GenerateUploadUrl:
+        handler: src/lambda/http/generateUploadUrl.handler
+        events:
+            - http:
+                  method: post
+                  path: /auction/{auctionId}/attachment
+                  authorizer: Auth
+                  cors: true
+        iamRoleStatements:
+            - ${file(iam/ImagesBucketIAM.yml):ImagesBucketPutObject}
+            # GetObject is required??
 
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax
