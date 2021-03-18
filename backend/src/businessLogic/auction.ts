@@ -16,6 +16,7 @@ const logger = createLogger("businessLogic-auction");
 
 import * as uuid from "uuid";
 import { SQSMessageBodyRequest } from "../requests/SQSMessageBodyRequest";
+import { UploadImageResponse } from "../response/uploadImageResponse";
 
 const auctionAccess: AuctionAccess = new AuctionAccess();
 const sqsAccess: SQSAccess = new SQSAccess();
@@ -43,6 +44,7 @@ export async function createAuctionItem(
             bidder: "", // Default, there is no bidder
         },
         seller: userEmail,
+        attachmentUrl: "", // Default at starting
     };
     return await auctionAccess.createAuction(newAuctionItem);
 }
@@ -178,10 +180,24 @@ export async function SendMessageToSQSForClosedItem(
     return Promise.all([notifyBidder, notifySeller]);
 }
 
-export function uploadImage(auctionId: string) {
+export async function updateImageUrl(auctionId: string) {
+    const url: string = s3Access.getPublicImageURL(auctionId);
+    return await auctionAccess.updateImageUrl(auctionId, url);
+}
+
+export async function uploadImage(
+    auctionId: string
+): Promise<UploadImageResponse> {
     logger.info(`API - Upload Image - AuctionID: ${auctionId}`);
 
-    // TODO: Check if auctionID Exists
+    const auction = await getAuctionItemById(auctionId); // will automatically throw error for invalid auction ID
+    logger.info(`API - Auction Found : ${JSON.stringify(auction)}`);
+
+    const updatedItem: AuctionItem = await updateImageUrl(auctionId);
     const url = s3Access.getSignedURL(auctionId); // Await is not required I think
-    return url;
+    const uploadImageResponse: UploadImageResponse = {
+        updatedItem: updatedItem,
+        signedUrl: url,
+    };
+    return uploadImageResponse;
 }

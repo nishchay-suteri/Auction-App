@@ -128,6 +128,8 @@ functions:
         iamRoleStatements:
             - ${file(iam/ImagesBucketIAM.yml):ImagesBucketPutObject}
             # GetObject is required??
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem} # For Updating the URL
+            - ${file(iam/AuctionTableIAM.yml):AuctionTableGetItem} # For validating auctionId
 
 resources:
     # Now, since we are using AWS, the following syntax is particular to cloud formation syntax, NOT The Serverless Syntax

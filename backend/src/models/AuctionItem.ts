@@ -7,4 +7,5 @@ export interface AuctionItem {
     endingAt: string;
     highestBid: BidItem;
     seller: string;
+    attachmentUrl: string;
 }

@@ -1,6 +1,7 @@
 import * as AWS from "aws-sdk";
-import { createLogger } from "../utils/logger";
+import { InternalServerError } from "http-errors";
 
+import { createLogger } from "../utils/logger";
 const logger = createLogger("dataAccessLayer-S3Access");
 
 export class S3Access {
@@ -13,10 +14,20 @@ export class S3Access {
 
     getSignedURL(auctionId: string) {
         logger.info(`Getting Signed URL - Auction ID: ${auctionId}`);
-        return this.s3.getSignedUrl("putObject", {
-            Bucket: this.bucketName,
-            Key: auctionId,
-            Expires: parseInt(this.urlExpiration),
-        });
+        try {
+            return this.s3.getSignedUrl("putObject", {
+                Bucket: this.bucketName,
+                Key: auctionId,
+                Expires: parseInt(this.urlExpiration),
+            });
+        } catch (err) {
+            logger.error(`Getting Signed URL - FAILED : ${err}`);
+            throw new InternalServerError(err);
+        }
+    }
+
+    getPublicImageURL(auctionId: string): string {
+        const url: string = `https://${this.bucketName}.s3.amazonaws.com/${auctionId}`;
+        return url;
     }
 }

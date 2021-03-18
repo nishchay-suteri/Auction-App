@@ -185,4 +185,31 @@ export class AuctionAccess {
             throw new InternalServerError(err);
         }
     }
+
+    async updateImageUrl(auctionId: string, url: string): Promise<AuctionItem> {
+        logger.info(
+            `Updating URL [New URL: ${url}] with Auction ID: ${auctionId}`
+        );
+
+        try {
+            const result = await this.docClient
+                .update({
+                    TableName: this.auctionTable,
+                    Key: {
+                        auctionId: auctionId,
+                    },
+                    UpdateExpression: "set attachmentUrl = :url",
+                    ExpressionAttributeValues: {
+                        ":url": url,
+                    },
+                    ReturnValues: "ALL_NEW",
+                })
+                .promise();
+            logger.info("Database Update URL: Success");
+            return result.Attributes as AuctionItem;
+        } catch (err) {
+            logger.error(`Database Update URL: Failure - ${err}`);
+            throw new InternalServerError(err);
+        }
+    }
 }
