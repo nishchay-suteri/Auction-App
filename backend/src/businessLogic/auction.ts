@@ -186,18 +186,28 @@ export async function updateImageUrl(auctionId: string) {
 }
 
 export async function uploadImage(
-    auctionId: string
+    auctionId: string,
+    jwtToken: string
 ): Promise<UploadImageResponse> {
     logger.info(`API - Upload Image - AuctionID: ${auctionId}`);
 
     const auction = await getAuctionItemById(auctionId); // will automatically throw error for invalid auction ID
     logger.info(`API - Auction Found : ${JSON.stringify(auction)}`);
 
+    const uploaderEmail: string = getUserEmail(jwtToken);
+    // Validate Auction Ownership
+    if (auction.seller !== uploaderEmail) {
+        logger.error(
+            `Uploader: ${uploaderEmail} is not matching with the seller: ${auction.seller}`
+        );
+        throw new Forbidden(`You are not the seller of this auction`);
+    }
+
     const updatedItem: AuctionItem = await updateImageUrl(auctionId);
     const url = s3Access.getSignedURL(auctionId); // Await is not required I think
     const uploadImageResponse: UploadImageResponse = {
         updatedItem: updatedItem,
-        signedUrl: url,
+        uploadUrl: url,
     };
     return uploadImageResponse;
 }

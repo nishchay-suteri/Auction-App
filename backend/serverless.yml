@@ -117,7 +117,7 @@ functions:
             - ${file(iam/SendMailIAM.yml):SendMailIAM}
             # Is MailQueueReceiveMessage not required? It is working currently
 
-    GenerateUploadUrl:
+    generateUploadUrl:
         handler: src/lambda/http/generateUploadUrl.handler
         events:
             - http:
