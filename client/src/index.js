@@ -12,31 +12,31 @@ import "./style.scss";
 import "./normalize.scss";
 
 const onRedirectCallback = (appState) => {
-  history.push(
-    appState && appState.targetUrl
-      ? appState.targetUrl
-      : window.location.pathname
-  );
+    history.push(
+        appState && appState.targetUrl
+            ? appState.targetUrl
+            : window.location.pathname
+    );
 };
 
 ReactDOM.render(
-  <Provider
-    auctionStore={AuctionStore}
-    authStore={AuthStore}
-    routerHistory={history}
-    overlayStore={OverlayStore}
-  >
-    <Auth0Provider
-      authStore={AuthStore}
-      domain={process.env.REACT_APP_AUTH0_DOMAIN}
-      client_id={process.env.REACT_APP_AUTH0_CLIENT_ID}
-      redirect_uri={window.location.origin}
-      onRedirectCallback={onRedirectCallback}
+    <Provider
+        auctionStore={AuctionStore}
+        authStore={AuthStore}
+        routerHistory={history}
+        overlayStore={OverlayStore}
     >
-      <App />
-    </Auth0Provider>
-  </Provider>,
-  document.getElementById("root")
+        <Auth0Provider
+            authStore={AuthStore}
+            domain={process.env.REACT_APP_AUTH0_DOMAIN}
+            client_id={process.env.REACT_APP_AUTH0_CLIENT_ID}
+            redirect_uri={window.location.origin}
+            onRedirectCallback={onRedirectCallback}
+        >
+            <App />
+        </Auth0Provider>
+    </Provider>,
+    document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
