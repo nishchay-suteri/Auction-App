@@ -97,7 +97,7 @@ functions:
     processAuctions:
         handler: src/lambda/schedule/processAuctions.handler
         events:
-            - schedule: rate(5 minute)
+            - schedule: rate(5 minutes)
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
             - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem}
