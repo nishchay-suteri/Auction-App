@@ -80,7 +80,7 @@ class AuctionStore {
         OverlayStore.setLoadingSpinner(false);
     }
 
-    async createAuction(title, pictureBase64) {
+    async createAuction(title, pictureFile) {
         let auctionId;
         OverlayStore.setLoadingSpinner(true);
 
@@ -95,14 +95,25 @@ class AuctionStore {
                 }
             );
 
-            const auction = createAuctionResult.data;
+            const auction = createAuctionResult.data.auction;
+
             auctionId = auction.auctionId;
 
-            await axios.patch(`/auction/${auctionId}/picture`, pictureBase64, {
-                headers: {
-                    Authorization: `Bearer ${AuthStore.token}`,
-                },
-            });
+            const signedUrlResult = await axios.post(
+                `/auction/${auctionId}/attachment`,
+                "",
+                {
+                    headers: {
+                        Authorization: `Bearer ${AuthStore.token}`,
+                    },
+                }
+            );
+
+            const signedURL = signedUrlResult.data.uploadUrl;
+
+            await axios.put(signedURL, pictureFile);
+
+            // TODO: We can reduce 3 calls (2 calls to lambda and 1 call to s3) to 2 calls. LATER
         } catch (error) {
             alert("Could not create auction! Check console for more details.");
             console.error(error);
