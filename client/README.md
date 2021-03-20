@@ -1,6 +1,6 @@
 ## The Auction House
 
-This front-end application For Auction Service. Default Template is taken from [Auction House Fron-end](https://github.com/codingly-io/sls-course-frontend).
+This front-end application For Auction Service. Default Template is taken from [Auction House Front-end](https://github.com/codingly-io/sls-course-frontend).
 
 ## Cloning and installing
 

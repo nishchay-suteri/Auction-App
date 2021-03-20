@@ -13,11 +13,46 @@ This Application will allow creating/deleting/updating/fetching Auction Items. E
 
 ## How to run the application
 
+**_NOTE: Backend is already deployed. So, No need to deploy backend again._**
+
 ### Backend
 
 To deploy an application run the following commands:
 
-````cd backend
+```cd backend
 npm install
-sls deploy -v```
-````
+sls deploy -v
+```
+
+### Frontend
+
+To run the Application:-
+
+```cd client
+npm install
+npm start
+```
+
+## Using the Application
+
+-   The command `npm start` will automatically launch the application at localhost.
+-   The first page will automatically redirect to the Auth0 Authenticaiton page. Just sign-in using Google.
+-   After sign-in, the home page of the application will be visible.
+-   Homepage will contain the auctions for which you can bid.
+-   You can create your own Auction by clicking the "+" button at down right.
+
+### Bidding on Auctions
+
+-   You can only bid on other's auctions. You can't bid on your own auction.
+-   You can't bid if you are already the highest Bidder.
+
+### Creating Auctions
+
+-   You can only create auctions when you are signed in.
+-   Once auction is created, it **_can take at max 5 seconds to display on the homepage_**. - **_TODO_**
+
+### Closing the Auctions and Notifying
+
+-   The Auction will be closed automatically after 1 hour of creation.
+-   The closing of auction to **_update on database can take at max 5 minutes_**. This is done **_to reduce the lambda function calls._**
+-   Once auction is closed, the seller and highest bidder will be notified through E-mail. **_NOTE_**: Currently, AWS only supports sending the email whose email address is verified at developer's AWS account. So, You might not get the notification.
