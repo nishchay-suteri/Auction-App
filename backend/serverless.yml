@@ -96,9 +96,8 @@ functions:
 
     processAuctions:
         handler: src/lambda/schedule/processAuctions.handler
-        # TODO: For testing, removing scheduling of function.. Uncomment this for production
-        # events:
-        #     - schedule: rate(1 minute)
+        events:
+            - schedule: rate(5 minute)
         iamRoleStatements:
             - ${file(iam/AuctionTableIAM.yml):AuctionTableQuery}
             - ${file(iam/AuctionTableIAM.yml):AuctionTableUpdateItem}
