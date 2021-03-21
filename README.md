@@ -13,8 +13,6 @@ This Application will allow creating/deleting/updating/fetching Auction Items. E
 
 ## How to run the application
 
-**_NOTE: Backend is already deployed. So, No need to deploy backend again._**
-
 ### Backend
 
 To deploy an application run the following commands:
