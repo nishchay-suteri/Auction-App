@@ -15,6 +15,7 @@ This Application will allow creating/deleting/updating/fetching Auction Items. E
 
 ### Backend
 
+Go through the [README.md](https://github.com/nishchay-suteri/Auction-App/blob/master/backend/README.md) provided inside backend folder for details.
 To deploy an application run the following commands:
 
 ```cd backend
@@ -24,6 +25,7 @@ sls deploy -v
 
 ### Frontend
 
+Go through the [README.md](https://github.com/nishchay-suteri/Auction-App/blob/master/client/README.md) provided inside client folder for details.
 To run the Application:-
 
 ```cd client
