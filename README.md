@@ -56,3 +56,9 @@ npm start
 -   The Auction will be closed automatically after 1 hour of creation.
 -   The closing of auction to **_update on database can take at max 5 minutes_**. This is done **_to reduce the lambda function calls._**
 -   Once auction is closed, the seller and highest bidder will be notified through E-mail. **_NOTE_**: Currently, AWS only supports sending the email whose email address is verified at developer's AWS account. So, You might not get the notification.
+
+## Current Limitations
+
+-   Once auction is created, there is no way to update or delete the auction.
+-   Even after closing the auction after 1 hour, we can still bid on it for upto maximum of 5 minutes.
+-   Notification via E-mail is not supported for all users.
