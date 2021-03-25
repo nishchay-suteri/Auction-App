@@ -37,3 +37,17 @@ Simple Queue Service is used to store the Email messages and process it asynchrn
 ### Lambda Functions
 
 Lambda functions contain the core logic of the App.
+
+## Application Features
+
+### Optimized Queries
+
+The App uses DynamoDB indexing for querying the database.
+
+### Pre-signed URL
+
+The app uses pre-signed URL design pattern which helps in reducing the AWS Lambda function invocation time.
+
+### Port-Adapter architecture
+
+The app code is refactored to use the port-adapter architecture which helps to defend against vendor lock-in.
